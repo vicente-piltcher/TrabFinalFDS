@@ -3,12 +3,15 @@ package com.bcopstein.sistvendas.interfaceAdaptadora;
 import java.util.List;
 import java.util.Map;
 
+import com.bcopstein.sistvendas.aplicacao.dtos.EstoqueDTO;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bcopstein.sistvendas.aplicacao.casosDeUso.AdicionaEstoqueUC;
@@ -21,6 +24,7 @@ import com.bcopstein.sistvendas.aplicacao.casosDeUso.ConsultaProdutosVendidosUC;
 import com.bcopstein.sistvendas.aplicacao.casosDeUso.EfetivaOrcamentoUC;
 import com.bcopstein.sistvendas.aplicacao.casosDeUso.ProdutosDisponiveisUC;
 import com.bcopstein.sistvendas.aplicacao.casosDeUso.TaxaDeOrcamentosConvertidosUC;
+import com.bcopstein.sistvendas.aplicacao.casosDeUso.OrcamentosPorDataUC;
 import com.bcopstein.sistvendas.aplicacao.dtos.ItemPedidoDTO;
 import com.bcopstein.sistvendas.aplicacao.dtos.OrcamentoDTO;
 import com.bcopstein.sistvendas.aplicacao.dtos.ProdutoDTO;
@@ -39,6 +43,7 @@ public class Controller {
     private ConsultaEstoqueTotalUC consultaEstoque;
     private ConsultaEstoquePorIdUC consultaEstoquePorId;
     private TaxaDeOrcamentosConvertidosUC taxaOrcamentoConvertido;
+    private OrcamentosPorDataUC orcamentoPorData;
     private ConsultaProdutosVendidosUC consultaProdutos;
     private ConsultaMediaImpostosUC consultaMediaImpostos;
 
@@ -46,11 +51,25 @@ public class Controller {
     public Controller(ProdutosDisponiveisUC produtosDisponiveis,
                       CriaOrcamentoUC criaOrcamento,
                       EfetivaOrcamentoUC efetivaOrcamento,
-                      BuscaOrcamentoUC buscaOrcamento){
+                      BuscaOrcamentoUC buscaOrcamento,
+                      AdicionaEstoqueUC adicionaEstoque,
+                      ConsultaEstoqueTotalUC consultaEstoque,
+                      ConsultaEstoquePorIdUC consultaEstoquePorId,
+                      TaxaDeOrcamentosConvertidosUC taxaOrcamentoConvertido,
+                      OrcamentosPorDataUC orcamentoPorData,
+                      ConsultaProdutosVendidosUC consultaProdutos,
+                      ConsultaMediaImpostosUC consultaMediaImpostos) {
         this.produtosDisponiveis = produtosDisponiveis;
         this.criaOrcamento = criaOrcamento;
         this.efetivaOrcamento = efetivaOrcamento;
         this.buscaOrcamento = buscaOrcamento;
+        this.adicionaEstoque = adicionaEstoque;
+        this.consultaEstoque = consultaEstoque;
+        this.consultaEstoquePorId = consultaEstoquePorId;
+        this.taxaOrcamentoConvertido = taxaOrcamentoConvertido;
+        this.orcamentoPorData = orcamentoPorData;
+        this.consultaProdutos = consultaProdutos;
+        this.consultaMediaImpostos = consultaMediaImpostos;
     }
 
     @GetMapping("")
@@ -91,7 +110,7 @@ public class Controller {
 
     @GetMapping("consultaEstoque")
     @CrossOrigin(origins = "*")
-    public long[][] consultaEstoqueTotal() {
+    public List<EstoqueDTO> consultaEstoqueTotal() {
         return consultaEstoque.run();
     }
 
@@ -105,6 +124,15 @@ public class Controller {
     @CrossOrigin(origins = "*")
     public double consultaTaxaOrcamento(){
         return taxaOrcamentoConvertido.run();
+    }
+
+    @GetMapping("consultaOrcamentosPorData")
+    @CrossOrigin(origins = "*")
+    public List<OrcamentoModel> consultaOrcamentosPorData(
+        @RequestParam("date1") String d1,
+        @RequestParam("date2") String d2
+    ){
+        return orcamentoPorData.run(d1, d2);
     }
 
     @GetMapping("consultaProdutosVendidos")

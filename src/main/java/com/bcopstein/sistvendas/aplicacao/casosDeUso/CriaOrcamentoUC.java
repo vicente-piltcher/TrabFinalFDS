@@ -28,7 +28,16 @@ public class CriaOrcamentoUC {
     public OrcamentoDTO run(List<ItemPedidoDTO> itens){
         PedidoModel pedido = new PedidoModel(0);
         for(ItemPedidoDTO item:itens){
+            if(item.getQtdade() <= 0) {
+                throw new IllegalArgumentException("Quantidade deve ser maior que zero");
+            }
+            if(item.getIdProduto() <= 0) {
+                throw new IllegalArgumentException("ID do produto deve ser maior que zero");
+            }
             ProdutoModel produto = servicoDeEstoque.produtoPorCodigo(item.getIdProduto());
+            if(produto == null) {
+                throw new IllegalArgumentException("Produto não encontrado");
+            }
             ItemPedidoModel itemPedido = new ItemPedidoModel(produto, item.getQtdade());
             pedido.addItem(itemPedido);
         }

@@ -1,5 +1,6 @@
 package com.bcopstein.sistvendas.aplicacao.casosDeUso;
-
+import java.util.List;
+import com.bcopstein.sistvendas.aplicacao.dtos.EstoqueDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ public class ConsultaEstoqueTotalUC {
             this.servidoDeGerenciamento = servidoDeGerenciamento;
         }
     
-    public long[][] run(){
+    public List<EstoqueDTO> run(){
         return servidoDeGerenciamento.estoquePorProduto();
         }
     }

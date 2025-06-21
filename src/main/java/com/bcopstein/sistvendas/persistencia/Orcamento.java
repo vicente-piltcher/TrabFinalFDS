@@ -1,6 +1,8 @@
 package com.bcopstein.sistvendas.persistencia;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.bcopstein.sistvendas.dominio.modelos.ItemPedidoModel;
@@ -26,6 +28,7 @@ public class Orcamento {
     private double desconto;
     private double custoConsumidor;
     private boolean efetivado;
+    private LocalDate date;
 
     public Orcamento(){
     }
@@ -44,6 +47,14 @@ public class Orcamento {
 
     public void setId(long id){
         this.id = id;
+    }
+
+    public LocalDate getDate() {
+        return this.date;
+    }
+
+    public void setDate(LocalDate d){
+        this.date = d;
     }
 
     public double getCustoItens() {
@@ -93,6 +104,7 @@ public class Orcamento {
         orc.setCustoItens(oModel.getCustoItens());
         orc.setImposto(oModel.getImposto());
         orc.setDesconto(oModel.getDesconto());
+        orc.getDate();
         if (oModel.isEfetivado()) orc.efetiva();
         for(ItemPedidoModel itm : oModel.getItens()){
             orc.addItensPedido(ItemPedido.fromItemPedidoModel(itm));        
@@ -101,6 +113,7 @@ public class Orcamento {
     }
 
     public static OrcamentoModel toOrcamentoModel(Orcamento orc){
+
         OrcamentoModel oModel = new OrcamentoModel();
         oModel.setId(orc.getId());
         oModel.setCustoConsumidor(orc.getCustoConsumidor());

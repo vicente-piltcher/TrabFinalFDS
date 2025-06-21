@@ -1,11 +1,17 @@
 package com.bcopstein.sistvendas.dominio.servicos;
 
+import java.util.Date;
 import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.bcopstein.sistvendas.dominio.modelos.ItemPedidoModel;
 import com.bcopstein.sistvendas.dominio.modelos.OrcamentoModel;
@@ -30,7 +36,14 @@ public class ServicoDeVendas {
     }
 
     public OrcamentoModel recuperaOrcamentoPorId(long id) {
-        return this.orcamentos.recuperaPorId(id);
+        
+        OrcamentoModel orc = this.orcamentos.recuperaPorId(id);
+
+        if(orc == null) {
+            throw new IllegalArgumentException("O orçamento nao existerrrr");
+        }
+
+        return orc;
     }
 
     public OrcamentoModel criaOrcamento(PedidoModel pedido) {
@@ -51,19 +64,62 @@ public class ServicoDeVendas {
         novoOrcamento.setCustoConsumidor(custoItens + novoOrcamento.getImposto() - novoOrcamento.getDesconto());
         return this.orcamentos.cadastra(novoOrcamento);
     }
+
+    public List<OrcamentoModel> listaPorData(String d1, String d2){
+        Date d1date = null;
+        Date d2date = null;
+        LocalDate localDate1 = null;
+        LocalDate localDate2 = null;
+        if (d1 == null || d2 == null) {
+            throw new IllegalArgumentException("Datas não podem ser nulas");
+        }
+        if (d1.isEmpty() || d2.isEmpty()) {
+            throw new IllegalArgumentException("Datas não podem ser vazias");
+        }
+        if (d1.length() != 10 || d2.length() != 10) {
+            throw new IllegalArgumentException("Formato de data deve ser yyyy-MM-dd");
+        }
+        if (!d1.matches("\\d{4}-\\d{2}-\\d{2}") || !d2.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            throw new IllegalArgumentException("Formato de data deve ser yyyy-MM-dd");
+        }
+        if (d1.compareTo(d2) > 0) {
+            throw new IllegalArgumentException("Data inicial não pode ser maior que a data final");
+        }
+        if (d1.compareTo(d2) == 0) {
+            throw new IllegalArgumentException("Datas não podem ser iguais");
+        }
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            d1date = dateFormat.parse(d1);
+            d2date = dateFormat.parse(d2);
+            localDate1 = d1date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            localDate2 = d2date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        } catch(ParseException e){
+            throw new IllegalArgumentException("Formato de data incorreto");
+        }
+
+        List<OrcamentoModel> orcamentoList = this.orcamentos.recuperaListaDataOrcamento(localDate1, localDate2);
+
+        return orcamentoList;
+
+
+    }
  
     public OrcamentoModel efetivaOrcamento(long id) {
         // Recupera o orçamento
         var orcamento = this.orcamentos.recuperaPorId(id);
         if (orcamento == null || orcamento.isEfetivado()){
-            throw new IllegalArgumentException("Orçamento inexistente ou já efetivado");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Orçamento inexistente ou já efetivado");
         }
 
         var orcamentoDate = orcamento.getDate();
+        if (orcamentoDate == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data do orçamento não definida");
+        }
         var today = LocalDate.now();
 
-        if(ChronoUnit.DAYS.between(orcamentoDate,today) > 21){
-            throw new IllegalArgumentException("Orçamento é superior a 21 dias");
+        if (ChronoUnit.DAYS.between(orcamentoDate, today) > 21) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Orçamento é superior a 21 dias");
         }
         
         var ok = true;
@@ -96,7 +152,13 @@ public class ServicoDeVendas {
     }
 
     public OrcamentoModel buscaOrcamento(long idOrcamento) {
-        return this.orcamentos.recuperaPorId(idOrcamento);
+        OrcamentoModel orc = this.orcamentos.recuperaPorId(idOrcamento);
+        
+        if(orc == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Orçamento não encontrado");
+        }
+
+        return orc;
     }
 
     

@@ -42,6 +42,13 @@ public class ServicoDeEstoque{
 
     public void adicionaEstoque(long id, int qtd){
         System.out.println("++qtEstoque: "+id);
+        if (qtd <= 0) {
+            throw new IllegalArgumentException("Quantidade a adicionar deve ser maior que zero");
+        }
+        if (estoque.quantidadeEmEstoque(id) == -1) {
+            throw new IllegalArgumentException("Produto inexistente no estoque");
+        }
+         System.out.println("++qtEstoque: "+id+" qtd: "+qtd);
         estoque.adicionaEstoque(id, qtd);
     }
 }

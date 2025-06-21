@@ -24,6 +24,8 @@ public class OrcamentoModel {
     public OrcamentoModel(){
         this.itens = new LinkedList<>();
         this.efetivado = false;
+        LocalDate hoje = LocalDate.now();
+        this.setDate(hoje);
     }
 
     public void addItensPedido(ItemPedidoModel item){

@@ -1,5 +1,6 @@
 package com.bcopstein.sistvendas.persistencia;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -35,8 +36,18 @@ public class OrcamentoRepJPA implements IOrcamentoRepositorio
     }
 
     @Override
+    public List<OrcamentoModel> recuperaListaDataOrcamento(LocalDate d1, LocalDate d2) {
+        return orcamentos.findOrcamentoBDates(d1, d2).stream()
+        .map(Orcamento::toOrcamentoModel)
+        .toList();
+    }
+
+    @Override
     public OrcamentoModel recuperaPorId(long id) {
         Orcamento orcamento = orcamentos.findById(id).orElse(null);
+        if (orcamento == null) {
+            return null;
+        }
         return Orcamento.toOrcamentoModel(orcamento);
     }
 
